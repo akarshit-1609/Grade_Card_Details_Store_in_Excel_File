@@ -1,4 +1,4 @@
+pathlib
 requests
-mysql-connector-python
-termcolor
+beautifulsoup4
 xlsxwriter
