@@ -5,7 +5,7 @@ from xlsxwriter import Workbook
 
 class IGNOUGradeCard:
     def __init__(self):
-        self.default_url = "https://gradecard.ignou.ac.in/gradecard/"
+        self.default_url = "https://gradecard.ignou.ac.in/"
         self.headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent": "Mozilla/5.0"
@@ -21,6 +21,7 @@ class IGNOUGradeCard:
         self.payload = {
             "__VIEWSTATE": "",
             "__VIEWSTATEGENERATOR": "",
+            "__VIEWSTATEENCRYPTED": "",
             "__EVENTVALIDATION": "",
             self.tag_ids["status_for"]: 0
         }
@@ -30,9 +31,10 @@ class IGNOUGradeCard:
             "Enrolment No": "",
             "Marksheet": [[]]
         }
+        self.session = requests.Session()
         try:
-            request = requests.get(self.default_url, headers=self.headers)
-            request.raise_for_status()
+            response = self.session.get(self.default_url, headers=self.headers)
+            response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
         except ConnectionError:
@@ -41,9 +43,10 @@ class IGNOUGradeCard:
             raise ValueError(f"Timeout Error:The request took too long.")
         except RequestException as e:
             raise ValueError(f"Error:{e}")
-        soup = BeautifulSoup(request.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         self.payload["__VIEWSTATE"] = soup.find("input", {"id": "__VIEWSTATE"})["value"]
         self.payload["__VIEWSTATEGENERATOR"] = soup.find("input", {"id": "__VIEWSTATEGENERATOR"})["value"]
+        self.payload["__VIEWSTATEENCRYPTED"] = soup.find("input", {"id": "__VIEWSTATEENCRYPTED"})["value"]
         self.payload["__EVENTVALIDATION"] = soup.find("input", {"id": "__EVENTVALIDATION"})["value"]
         select = soup.find("select", {"id": self.tag_ids["status_for"]})
         self.status_for_options = {
@@ -54,8 +57,8 @@ class IGNOUGradeCard:
     def fetch_programs(self, status_type):
         self.payload[self.tag_ids["status_for"]] = self.status_for_options[status_type]
         try:
-            request = requests.post(self.default_url, headers=self.headers, data=self.payload)
-            request.raise_for_status()
+            response = self.session.post(self.default_url, headers=self.headers, data=self.payload)
+            response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
         except ConnectionError:
@@ -64,7 +67,7 @@ class IGNOUGradeCard:
             raise ValueError(f"Timeout Error:The request took too long.")
         except RequestException as e:
             raise ValueError(f"Error:{e}")
-        soup = BeautifulSoup(request.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         select = soup.find("select", {"id": self.tag_ids["programme_id"]})
         self.program_options = {
             option.text.strip(): option["value"]
@@ -72,8 +75,8 @@ class IGNOUGradeCard:
         }
     def get_datails_and_marksheet(self, status_type, programme_code, enrolnment_no):
         try:
-            request = requests.get(f'{self.default_url}view_gradecard.aspx?eno={enrolnment_no}&prog={self.program_options[programme_code]}&type={self.status_for_options[status_type]}', headers=self.headers)
-            request.raise_for_status()
+            response = self.session.get(f'{self.default_url}view_gradecard.aspx?eno={enrolnment_no}&prog={self.program_options[programme_code]}&type={self.status_for_options[status_type]}', headers=self.headers)
+            response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
         except ConnectionError:
@@ -82,7 +85,7 @@ class IGNOUGradeCard:
             raise ValueError(f"Timeout Error:The request took too long.")
         except RequestException as e:
             raise ValueError(f"Error:{e}")
-        soup = BeautifulSoup(request.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         self.student_details["Name"] = soup.find("span", {"id": self.tag_ids["student_name"]}).get_text().title()
         self.student_details["Programme Code"] = soup.find("span", {"id": self.tag_ids["student_program_code"]}).get_text()
         self.student_details["Enrolment No"] = soup.find("span", {"id": self.tag_ids["student_enrolnment_no"]}).get_text()
