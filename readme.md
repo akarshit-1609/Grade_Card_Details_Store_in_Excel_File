@@ -1,6 +1,12 @@
 # IGNOU Grade Card Details save in excel file
 
 
+## Download Pre-built Binary
+
+- [For Windows](https://github.com/akarshit-1609/Grade_Card_Details_Store_in_Excel_File/releases/download/v1.0.0/ignougradecard-windows-x64.exe)
+- [For Linux (AppImage)](https://github.com/akarshit-1609/Grade_Card_Details_Store_in_Excel_File/releases/download/v1.0.0/IGNOU_Grade_Card_glibc-2.31_linux-x86_64.AppImage)
+
+
 ## Requirements
 
 To run this program, you will need:

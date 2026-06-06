@@ -72,7 +72,7 @@ def fetch_marksheet():
 def save_in_file():
     global gradecard, export_button
     export_button.config(state="disabled")
-    default_filename = f"{gradecard.student_details["Name"].lower().replace(" ", "_")}_{gradecard.student_details["Enrolment No"]}.xlsx"
+    default_filename = f'{gradecard.student_details["Name"].lower().replace(" ", "_")}_{gradecard.student_details["Enrolment No"]}.xlsx'
     file_path = filedialog.asksaveasfilename(
         initialdir=Path(__file__).parent,
         initialfile=default_filename,
