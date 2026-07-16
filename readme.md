@@ -47,3 +47,9 @@ To run this program, you will need:
 * Select your programme code and enter your enrolnment number then click on search button.
 
 * When your name show then you can export and save your marks in excel file.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
