@@ -28,7 +28,8 @@ def hide_output(event):
     output.display(False)
 
 def fetch_marksheet():
-    global gradecard, status_type_dropdown, programme_code_dropdown, enrolnment_input, fetch_button, output, export_button
+    global gradecard, status_type_dropdown, programme_code_dropdown, enrolnment_input, fetch_button, output, show_button, export_button
+    show_button.display(False)
     export_button.display(False)
     output.display(False)
     fetch_button.config(state="disabled")
@@ -60,6 +61,7 @@ def fetch_marksheet():
             output.display_data["Complete"] = str(complete_count)
             output.display_data["Not Complete"] = str(not_complete_count)
             output.display(True)
+            show_button.display(True)
             output.showOutput(background="#ffffff", fg="#019C01")
             export_button.display(True)
         else:
@@ -68,6 +70,14 @@ def fetch_marksheet():
         error_message = str(e).split(":")
         messagebox.showerror(error_message[0], error_message[1])
     fetch_button.config(state="normal")
+
+def show_marksheet():
+    global window, gradecard
+    IGNOUGradeCardTable(
+        window,
+        header_list = gradecard.student_details["Marksheet"][0],
+        marks_data = gradecard.student_details["Marksheet"][1:]
+    )
 
 def save_in_file():
     global gradecard, export_button
@@ -84,13 +94,13 @@ def save_in_file():
         gradecard.marksheet_save_in_excel_file(file_path)
     export_button.config(state="normal")
 
-window = Window("IGNOU Grade Card", 400, 400)
+window = Window("IGNOU Grade Card", 400, 450)
 style = ttk.Style()
 style.theme_use("clam")
 frame = Frame(window, background="#ffffff")
 
 def main():
-    global window, style, frame, gradecard, status_type_dropdown, programme_code_dropdown, enrolnment_input, fetch_button, output, export_button
+    global window, style, frame, gradecard, status_type_dropdown, programme_code_dropdown, enrolnment_input, fetch_button, output, show_button, export_button
     some_error = True
     while some_error:
         try:
@@ -116,6 +126,14 @@ def main():
     fetch_button = Button(frame, text="Search", style="fetch_button.TButton", width=45, command=lambda: threading.Thread(target=fetch_marksheet, daemon=True).start())
     output = OutputLabel(frame, background="white")
     output.showOutput(background="#ffffff", fg="#019C01")
+    style.configure("Treeview.Heading", background="#0000ff", foreground="#ffffff")
+    style.configure("show_button.TButton", background="#20c20a", foreground="#ffffff", borderwidth=0, padding=4)
+    style.map(
+        "show_button.TButton",
+        background=[("pressed", "#0da540"), ("active", "#549e0f"), ("disabled", "#cccccc")],
+        foreground=[("pressed", "#ffffff"), ("active", "#ffffff"), ("disabled", "#000000")])
+    show_button = Button(frame, text="View Marksheet", style="show_button.TButton", width=45, command=lambda: threading.Thread(target=show_marksheet, daemon=True).start())
+    show_button.display(False)
     style.configure("export_button.TButton", background="#f08930", foreground="#ffffff", borderwidth=0, padding=4)
     style.map(
         "export_button.TButton",

@@ -113,6 +113,36 @@ class OutputLabel(tk.Frame):
         else:
             self.pack_forget()
 
+class IGNOUGradeCardTable(tk.Toplevel):
+    def __init__(self, master = None, header_list: list[str] = [""]*9, marks_data: list[list] = []):
+        if len(header_list) != 9:
+            raise ValueError("Heading List must be 9.")
+        super().__init__(master)
+        self.title("Grade Card")
+        self.geometry("960x400")
+        columns_width = [100, 67, 59, 59, 59, 59, 166, 188, 100]
+        columns_anchor = [tk.W, tk.E, tk.E, tk.E, tk.E, tk.E, tk.E, tk.E, tk.W]
+        table = ttk.Treeview(self, columns=["A", "B"], show="headings")
+        table = ttk.Treeview(self, columns=header_list, show="headings")
+        table.pack(fill="both", expand=True)
+        table.tag_configure("dark_blue", background="#0000ff", foreground="#ffffff")
+        table.tag_configure("blue", background="#8e8eff", foreground="#ffffff")
+        table.tag_configure("white", background="#ffffff", foreground="#000000")
+        for i, header in enumerate(header_list):
+            table.heading(header, text=header, anchor=tk.CENTER)
+            table.column(header, width=columns_width[i], anchor=columns_anchor[i])
+        y_scroll = ttk.Scrollbar(self, orient="vertical", command=table.yview)
+        table.configure(yscrollcommand=y_scroll.set)
+        row_color = False
+        for row in marks_data:
+            if row_color:
+                color = "blue"
+            else:
+                color = "white"
+            table.insert("", tk.END, values=row, tags=(color, ))
+            row_color = not row_color
+        table.insert("", tk.END, values=[""]*9, tags=("dark_blue", ))
+
 if __name__ == "__main__":
     root = Window("Test", 300, 200)
     d = DropdownBox(root, values=["A", "B", "C", "D", "E"], heading="Alphabets", required=True)
