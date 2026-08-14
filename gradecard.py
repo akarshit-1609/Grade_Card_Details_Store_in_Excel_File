@@ -5,12 +5,12 @@ from xlsxwriter import Workbook
 
 class IGNOUGradeCard:
     def __init__(self):
-        self.default_url = "https://gradecard.ignou.ac.in/"
-        self.headers = {
+        self._default_url = "https://gradecard.ignou.ac.in/"
+        self._headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent": "Mozilla/5.0"
         }
-        self.tag_ids = {
+        self._tag_ids = {
             "status_for": "ddlGradecardfor",
             "programme_id": "ddlProgram",
             "student_enrolnment_no": "ctl00_ContentPlaceHolder1_lblDispEnrolno",
@@ -18,12 +18,12 @@ class IGNOUGradeCard:
             "student_program_code": "ctl00_ContentPlaceHolder1_lblDispProgCode",
             "student_marksheet": "ctl00_ContentPlaceHolder1_gvDetail"
         }
-        self.payload = {
+        self._payload = {
             "__VIEWSTATE": "",
             "__VIEWSTATEGENERATOR": "",
             "__VIEWSTATEENCRYPTED": "",
             "__EVENTVALIDATION": "",
-            self.tag_ids["status_for"]: 0
+            self._tag_ids["status_for"]: 0
         }
         self.student_details = {
             "Name": "",
@@ -31,9 +31,9 @@ class IGNOUGradeCard:
             "Enrolment No": "",
             "Marksheet": [[]]
         }
-        self.session = requests.Session()
+        self._session = requests.Session()
         try:
-            response = self.session.get(self.default_url, headers=self.headers)
+            response = self._session.get(self._default_url, headers=self._headers)
             response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
@@ -44,20 +44,20 @@ class IGNOUGradeCard:
         except RequestException as e:
             raise ValueError(f"Error:{e}")
         soup = BeautifulSoup(response.text, "html.parser")
-        self.payload["__VIEWSTATE"] = soup.find("input", {"id": "__VIEWSTATE"})["value"]
-        self.payload["__VIEWSTATEGENERATOR"] = soup.find("input", {"id": "__VIEWSTATEGENERATOR"})["value"]
-        self.payload["__VIEWSTATEENCRYPTED"] = soup.find("input", {"id": "__VIEWSTATEENCRYPTED"})["value"]
-        self.payload["__EVENTVALIDATION"] = soup.find("input", {"id": "__EVENTVALIDATION"})["value"]
-        select = soup.find("select", {"id": self.tag_ids["status_for"]})
+        self._payload["__VIEWSTATE"] = soup.find("input", {"id": "__VIEWSTATE"})["value"]
+        self._payload["__VIEWSTATEGENERATOR"] = soup.find("input", {"id": "__VIEWSTATEGENERATOR"})["value"]
+        self._payload["__VIEWSTATEENCRYPTED"] = soup.find("input", {"id": "__VIEWSTATEENCRYPTED"})["value"]
+        self._payload["__EVENTVALIDATION"] = soup.find("input", {"id": "__EVENTVALIDATION"})["value"]
+        select = soup.find("select", {"id": self._tag_ids["status_for"]})
         self.status_for_options = {
             option.text.strip(): option["value"]
             for option in select.find_all("option") if str(option["value"]) != "0"
         }
         self.program_options = {}
     def fetch_programs(self, status_type):
-        self.payload[self.tag_ids["status_for"]] = self.status_for_options[status_type]
+        self._payload[self._tag_ids["status_for"]] = self.status_for_options[status_type]
         try:
-            response = self.session.post(self.default_url, headers=self.headers, data=self.payload)
+            response = self._session.post(self._default_url, headers=self._headers, data=self._payload)
             response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
@@ -68,14 +68,14 @@ class IGNOUGradeCard:
         except RequestException as e:
             raise ValueError(f"Error:{e}")
         soup = BeautifulSoup(response.text, "html.parser")
-        select = soup.find("select", {"id": self.tag_ids["programme_id"]})
+        select = soup.find("select", {"id": self._tag_ids["programme_id"]})
         self.program_options = {
             option.text.strip(): option["value"]
             for option in select.find_all("option") if str(option["value"]) != "0"
         }
     def get_datails_and_marksheet(self, status_type, programme_code, enrolnment_no):
         try:
-            response = self.session.get(f'{self.default_url}view_gradecard.aspx?eno={enrolnment_no}&prog={self.program_options[programme_code]}&type={self.status_for_options[status_type]}', headers=self.headers)
+            response = self._session.get(f'{self._default_url}view_gradecard.aspx?eno={enrolnment_no}&prog={self.program_options[programme_code]}&type={self.status_for_options[status_type]}', headers=self._headers)
             response.raise_for_status()
         except HTTPError as e:
             raise ValueError(f"HTTP Error:{e.response.status_code} - {e}")
@@ -86,13 +86,13 @@ class IGNOUGradeCard:
         except RequestException as e:
             raise ValueError(f"Error:{e}")
         soup = BeautifulSoup(response.text, "html.parser")
-        self.student_details["Name"] = soup.find("span", {"id": self.tag_ids["student_name"]}).get_text().title()
-        self.student_details["Programme Code"] = soup.find("span", {"id": self.tag_ids["student_program_code"]}).get_text()
-        self.student_details["Enrolment No"] = soup.find("span", {"id": self.tag_ids["student_enrolnment_no"]}).get_text()
+        self.student_details["Name"] = soup.find("span", {"id": self._tag_ids["student_name"]}).get_text().title()
+        self.student_details["Programme Code"] = soup.find("span", {"id": self._tag_ids["student_program_code"]}).get_text()
+        self.student_details["Enrolment No"] = soup.find("span", {"id": self._tag_ids["student_enrolnment_no"]}).get_text()
         if self.student_details["Name"] == "" and self.student_details["Programme Code"] == "" and self.student_details["Enrolment No"] == "":
             self.student_details["Marksheet"] = [[]]
             return False
-        table = soup.find("table", {"id": self.tag_ids["student_marksheet"]})
+        table = soup.find("table", {"id": self._tag_ids["student_marksheet"]})
         self.student_details["Marksheet"] = [
             [ceil.get_text(strip=True) for ceil in row.find_all(["th", "td"])]
             for row in table.find_all("tr")
