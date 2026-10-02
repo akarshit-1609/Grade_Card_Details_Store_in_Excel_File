@@ -50,12 +50,12 @@ def fetch_marksheet():
         if marksheet_found:
             complete_count = 0
             not_complete_count = 0
+            last_column = len(gradecard.student_details["Marksheet"][0]) - 1
             for i in gradecard.student_details["Marksheet"][1:]:
-                if len(i) == 9:
-                    if i[8] == "COMPLETED":
-                        complete_count = complete_count + 1
-                    elif i[8] == "NOT COMPLETED":
-                        not_complete_count = not_complete_count + 1
+                if i[last_column] == "COMPLETED":
+                    complete_count = complete_count + 1
+                elif i[last_column] == "NOT COMPLETED":
+                    not_complete_count = not_complete_count + 1
             output.display_data["Name"] = gradecard.student_details["Name"]
             output.display_data["Total Rows"] = str(len(gradecard.student_details["Marksheet"])-1)
             output.display_data["Complete"] = str(complete_count)
