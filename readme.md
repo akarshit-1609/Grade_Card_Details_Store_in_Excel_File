@@ -50,6 +50,19 @@ To run this program, you will need:
 
 ---
 
+# ⚠️ Disclaimer
+This is an **unofficial**, **independent student project** and is **not affiliated with, endorsed by, sponsored by, or officially connected to the IGNOU university** or any of its departments, colleges, or authorities.
+
+This software uses publicly accessible information available through the university's official website and provides an independent way to retrieve and export student marksheet information.
+
+The project is developed and maintained independently by a student for **educational and convenience purposes**. It does not modify, alter, or interfere with the university's records or systems.
+
+The university's name, website, trademarks, logos, and other related materials, where applicable, belong to their respective owners. This project does not claim ownership of them.
+
+Users are responsible for using the software in accordance with applicable laws, university policies, and the website's terms of use.
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
