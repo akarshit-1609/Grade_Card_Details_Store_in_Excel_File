@@ -115,13 +115,14 @@ class OutputLabel(tk.Frame):
 
 class IGNOUGradeCardTable(tk.Toplevel):
     def __init__(self, master = None, header_list: list[str] = [""]*9, marks_data: list[list] = []):
-        if len(header_list) != 9:
-            raise ValueError("Heading List must be 9.")
         super().__init__(master)
         self.title("Grade Card")
         self.geometry("960x400")
-        columns_width = [100, 67, 59, 59, 59, 59, 166, 188, 100]
-        columns_anchor = [tk.W, tk.E, tk.E, tk.E, tk.E, tk.E, tk.E, tk.E, tk.W]
+        self._header_len = len(header_list)
+        columns_width = [100, 67, 166, 100]
+        columns_width[2:2] = [59] * (self._header_len - 4)
+        columns_anchor = [tk.W, tk.W]
+        columns_anchor[1:1] = [tk.E] * (self._header_len - 2)
         table = ttk.Treeview(self, columns=["A", "B"], show="headings")
         table = ttk.Treeview(self, columns=header_list, show="headings")
         table.pack(fill="both", expand=True)
